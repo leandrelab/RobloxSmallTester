@@ -6,7 +6,7 @@ A small and type checked unit testing framework for Roblox. This library was pri
 
 Copy the contents of **src/Tester.lua** in a ModuleScript under your test directory. Alternatively:
 
-* Download the file **Tester.rbxmx** under **Releases**
+* Download the file **RobloxSmallTester.rbxmx** under **Releases**
 * In Roblox Studio, right-click on your test directory (e.g. ReplicatedStorage)
 * Select **Insert** -> **Import Roblox Model**
 * Browse to **Tester.rbxmx** and select **Open**

@@ -1292,7 +1292,7 @@ local function getMilliseconds(): number
 end
 
 --[[
-	Creates a Tester. Runs tests on descendants of testsRoot which are ModuleScripts with the suffix ".test".
+	Creates a Tester. Given a root Instance, Tester runs tests using descendant or root ModuleScripts whose name ends with the suffix ".test".
 ]]
 function Tester.new(testsRoot: Instance): Tester
 	local results = {
@@ -1337,7 +1337,7 @@ function Tester.new(testsRoot: Instance): Tester
 end
 
 --[[
-	Returns information for all test modules before building the tests.
+	Returns the information about all test modules.
 ]]
 function Tester.GetModulesInfo(self: Tester): Array<TestModuleInfo>
 	return self.m_ModulesInfo
@@ -1351,7 +1351,7 @@ function Tester.GetResults(self: Tester): TestResults
 end
 
 --[[
-	Prints the results in the output.
+	Outputs the result.
 ]]
 function Tester.PrintResultsDefault(self: Tester): ()
 	local results = self.m_Results
