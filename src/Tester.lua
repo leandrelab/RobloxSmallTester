@@ -505,9 +505,10 @@ local function expandNode(stack: TestNodeStack, callbacks: TestCallbackStack, no
 
 	local canExpand = true
 	for _, scopeEnterCallback in callbacks:StartScopeEnterCallbacks() do
-		local result; canExpand, result = runCallback(scopeEnterCallback)
-		if not canExpand then
+		local success, result = runCallback(scopeEnterCallback)
+		if not success then
 			addError(stack, `OnScopeEnter: {result}`)
+			canExpand = false
 		end
 	end
 	callbacks:EndScopeCallbacks()
@@ -1083,9 +1084,10 @@ local function expandRootNodes(tree: TestTreeNode, rootNodes: Array<TestTreeRoot
 
 	local canStart = true
 	for _, startCallback in callbacks:GetStartCallbacks() do
-		local result; canStart, result = runCallback(startCallback)
-		if not canStart then
+		local success, result = runCallback(startCallback)
+		if not success then
 			addError(stack, `OnStart: {result}`)
+			canStart = false
 		end
 	end
 
@@ -1097,9 +1099,10 @@ local function expandRootNodes(tree: TestTreeNode, rootNodes: Array<TestTreeRoot
 
 			local canExpand = true
 			for _, scopeEnterCallback in callbacks:StartScopeEnterCallbacks() do
-				local result; canExpand, result = runCallback(scopeEnterCallback)
-				if not canExpand then
+				local success, result = runCallback(scopeEnterCallback)
+				if not success then
 					addError(stack, `{rootNode.Name} OnScopeEnter: {result}`)
+					canExpand = false
 				end
 			end
 			callbacks:EndScopeCallbacks()
