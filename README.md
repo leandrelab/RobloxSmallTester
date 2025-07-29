@@ -13,13 +13,13 @@ Copy the contents of **src/Tester.lua** in a ModuleScript under your test direct
 
 ## Main features
 
-* Output easily readable results with `PrintResultsDefault()`,
-* Configure the output with `GetResults()` and `GetModulesInfo()`,
-* Create tests using expect nodes with `TestEnvironment.Expect(value: any)`, followed by a validation function with the `TestEnvironment.To[...]` methods,
+* Easily readable output with `PrintResultsDefault()`,
+* Write your own output with `GetResults()` and `GetModulesInfo()`,
+* Create tests using expect nodes with `TestEnvironment.Expect(value: any)`, followed by a validation check with the `TestEnvironment.To[...]` methods,
 * Add descriptions and group expect nodes using detail nodes with `TestEnvironment.Detail(message: string, callback: () -> ())`,
-* Add to-do messages with `TestEnvironment.DebugToDo(message: string)` above a node,
-* Skip tests with `TestEnvironment.DebugSkip()` above a node,
-* Only run specific tests with `TestEnvironment.DebugFocus()` above a node,
+* Add to-do messages with `TestEnvironment.DebugToDo(message: string)` before a node,
+* Skip tests with `TestEnvironment.DebugSkip()` before a node,
+* Only run specific tests with `TestEnvironment.DebugFocus()` before a node.
 
 ## Usage and example
 
@@ -111,9 +111,39 @@ Successfully ran tests
 
 Any errors occurring while building or running tests are reported to the output with the path to the error and the error itself.
 
-## Other example
+## Other examples
 
 It is also possible to listen for `Tester` starting and ending testing, or when a new scope is entered or exited:
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Tester = require(ReplicatedStorage.Tester)
+
+return function(environment: Tester.TestEnvironment, context: Tester.TestContext): ()
+    environment.OnStart(function(): ()
+        print("Tester started!")
+    end)
+    environment.OnEnd(function(): ()
+        print("Tester ended!")
+    end)
+    
+    -- Listen for scopes being entered and exited (either a test module or a detail node)
+    local scopeLevel = 0
+    environment.OnScopeEnter(function(): ()
+        scopeLevel += 1
+        print(`Scope entered, scope level: {scopeLevel}`)
+    end)
+    environment.OnScopeExit(function(): ()
+        scopeLevel -= 1
+        print(`Scope exited, scope level: {scopeLevel}`)
+    end)
+
+    ...
+end
+```
+
+Here is another example to only run tests in "is empty" and skip the second test in "is empty":
 
 **ReplicatedStorage**/**String**/**String.test**
 
@@ -127,28 +157,33 @@ return function(environment: Tester.TestEnvironment, context: Tester.TestContext
     local detail = environment.Detail
     local expect = environment.Expect
     local toEqual = environment.ToEqual
-    
-    environment.OnStart(function(): ()
-        print("Tester started!")
-    end)
-    environment.OnEnd(function(): ()
-        print("Tester ended!")
-    end)
-    
-    -- Listen for scopes being entered and exited (either a test module or a detail node)
-    local scopeLevel = 0
-    environment.OnScopeEnter(function(): ()
-        scopeLevel += 1
-        print(`Detail node entered, scope level: {scopeLevel}`)
-    end)
-    environment.OnScopeExit(function(): ()
-        scopeLevel -= 1
-        print(`Detail node exited, scope level: {scopeLevel}`)
-    end)
+    local debugFocus = environment.DebugFocus
+    local debugSkip = environment.DebugSkip
 
-    ...
+    -- Tests which are descendants of "is empty" will run
+    debugFocus()
+    detail("is empty", function(): ()
+        expect(String.isEmpty("    "))
+        toEqual(true)
+        
+        -- This specific test will be skipped
+        debugSkip() 
+        expect(String.isEmpty("Hello world!"))
+        toEqual(false)
+    end)
+    
+    -- These tests will not run
+    detail("starts with", function(): ()
+        expect(String.startsWith("0b111111", "0x"))
+        toEqual(false)
+        
+        expect(String.startsWith("0xFFFFFF", "0x"))
+        toEqual(true)
+    end)
 end
 ```
+
+Using debug nodes (`DebugToDo`, `DebugFocus` or `DebugSkip`) adds a message to the output to notify the user. Parent debug nodes always have priority over children debug nodes.
 
 ## Authors
 

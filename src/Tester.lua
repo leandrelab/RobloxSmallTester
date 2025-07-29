@@ -1,6 +1,4 @@
 --!strict
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 export type Array<T> = { [number]: T }
 export type Map<T, Key> = { [T]: Key }
 
@@ -1216,7 +1214,7 @@ local function getSkippedChildrenCount(rootNode: TestTreeNode): number
 			count += 1
 
 		elseif childNode.Type == NODE_TYPE.Detail then
-			count += getSkippedChildrenCount(rootNode)
+			count += getSkippedChildrenCount(childNode)
 		end
 	end
 
